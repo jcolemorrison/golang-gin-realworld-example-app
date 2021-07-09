@@ -40,7 +40,7 @@ jobs:
               gcc \
               libc6-dev \
               make \
-              pkg-config
+              pkg-config \
             && rm -rf /var/lib/apt/lists/*
       
       - name: Build application AMD64
