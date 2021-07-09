@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup go
         uses: actions/setup-go@v2
+
+      - run: go version
       
       - name: Build application AMD64
         run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o ./bin/amd64/api
