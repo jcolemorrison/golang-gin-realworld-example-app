@@ -35,7 +35,7 @@ jobs:
 
       - name: Install tooling for cross compile
         run: |
-          sudo apt-get update && apt-get install -y --no-install-recommends \
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
               g++ \
               gcc \
               libc6-dev \
