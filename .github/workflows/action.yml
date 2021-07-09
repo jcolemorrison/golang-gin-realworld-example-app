@@ -5,7 +5,7 @@ on:
       - master
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       DOCKER_REPO: jcolemorrison/go-example-api
       DOCKER_REPO_TAG: v0.0.1
@@ -32,6 +32,16 @@ jobs:
           go-version: 1.16.5
 
       - run: go version
+
+      - name: Install tooling for cross compile
+        run: |
+          RUN apt-get update && apt-get install -y --no-install-recommends \
+              g++ \
+              gcc \
+              libc6-dev \
+              make \
+              pkg-config
+            && rm -rf /var/lib/apt/lists/*
       
       - name: Build application AMD64
         run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o ./bin/amd64/api
