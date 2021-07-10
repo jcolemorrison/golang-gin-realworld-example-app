@@ -35,19 +35,13 @@ jobs:
 
       - name: Install tooling for cross compile
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-              g++ \
-              gcc \
-              libc6-dev \
-              make \
-              pkg-config \
-            && sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu && sudo rm -rf /var/lib/apt/lists/*
       
       - name: Build application AMD64
         run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o ./bin/amd64/api
       
       - name: Build application ARM64
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o ./bin/arm64/api
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o ./bin/arm64/api
 
       - name: Login to Docker
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
