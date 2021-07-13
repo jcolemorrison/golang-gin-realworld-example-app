@@ -35,7 +35,7 @@ jobs:
 
       - name: Install tooling for cross compile
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu libc6-dev-arm64-cross && sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu && sudo rm -rf /var/lib/apt/lists/*
       
       - name: debug with gcc-aarch64-linux-gnu
         run: sudo ls /usr/lib/aarch64-linux-gnu
@@ -47,7 +47,7 @@ jobs:
         run: GOOS=linux GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o ./bin/arm64/api
 
       - name: Login to Docker
-        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Docker Buildx and Push
         run: |
