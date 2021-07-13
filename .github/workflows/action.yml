@@ -48,7 +48,7 @@ jobs:
 
       - name: Docker Buildx and Push
         run: |
-          docker buildx create --use multi_arch
+          docker buildx create --use --name multi_arch
           docker buildx build --platform linux/amd64,linux/arm64 \
             -t ${DOCKER_REPO}:${DOCKER_REPO_TAG} \
             --push \
