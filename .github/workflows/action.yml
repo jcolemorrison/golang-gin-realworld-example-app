@@ -50,6 +50,7 @@ jobs:
         run: |
           docker buildx create --use --name multi_arch
           docker buildx build --platform linux/amd64,linux/arm64 \
+            -f ./ReleaseDockerfile \
             -t ${DOCKER_REPO}:${DOCKER_REPO_TAG} \
             --push \
             .

@@ -1,0 +1,19 @@
+# build the AMD and ARM bins
+FROM golang:1.16.5 AS builder
+
+# prepare the image for AMD
+FROM builder AS image-amd64
+WORKDIR /usr/local/bin/
+COPY ./bin/amd64/api .
+RUN chmod +x ./api
+
+# prepare the image for ARM
+FROM builder AS image-arm64
+WORKDIR /usr/local/bin/
+COPY ./bin/arm64/api .
+RUN chmod +x ./api
+
+# Use the image based on the architecture.  Built Docker variable, $TARGETARCH, to get this information.
+# Use one of the two prepared images.  Since this is a multi-stage build, the above will not be included in the final image
+FROM image-${TARGETARCH}
+ENTRYPOINT ["./api"]
