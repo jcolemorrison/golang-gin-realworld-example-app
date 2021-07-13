@@ -35,7 +35,7 @@ jobs:
 
       - name: Install tooling for cross compile
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu libc6-dev-arm64-cross && sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu && sudo rm -rf /var/lib/apt/lists/*
 
       - name: Build application AMD64
         run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o ./bin/amd64/api
