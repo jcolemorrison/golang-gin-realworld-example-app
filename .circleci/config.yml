@@ -25,7 +25,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - "bin"
+            - .
 
   build-docker-image:
     executor: docker-executor
