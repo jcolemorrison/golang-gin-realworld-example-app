@@ -1,0 +1,84 @@
+# Circle CI Config File Version
+version: 2.1
+
+# Reusable block for specifying what will be doing the building. In this case
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/go:1.16.7 # https://hub.docker.com/r/cimg/go
+
+jobs:
+  build-go-app:
+    executor: docker-executor
+    steps:
+      - checkout # checks out code in default working directory, which is ~/project
+      - run:
+          name: Install tooling for cross compile
+          command: sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu libc6-dev-arm64-cross && sudo rm -rf /var/lib/apt/lists/*
+      - run:
+          name: Build application AMD64
+          command: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o ./bin/amd64/api
+      - run:
+          name: Build application ARM64
+          command: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC=aarch64-linux-gnu-gcc go build -o ./bin/arm64/api
+        # persist the bin directory with the two compiled bins
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "bin"
+
+  build-docker-image:
+    executor: docker-executor
+    # Change these to your own
+    environment:
+      DOCKER_REPO: jcolemorrison/go-example-api-circleci
+      DOCKER_REPO_TAG: latest
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: .
+        # https://github.com/tonistiigi/binfmt/
+        # This creates docker containers that emulate different architectures with QEMU so that they can build for different platforms 
+      - run:
+          name: Setup binfmt and context to build the multi arch images
+          command: docker run --rm --privileged tonistiigi/binfmt:latest --install linux/amd64,linux/arm64
+      - run:
+          name: Create context and point buildx to new context
+          command: |
+            # Create new context
+            docker context create multi_arch_build
+
+            # Set create a new builder and point it to the new context.  This POINTS to the multi_arch_build context.
+            # https://docs.docker.com/engine/reference/commandline/buildx_create/
+            docker buildx create --use multi_arch_build
+      - run:
+          name: Login to Docker Hub
+          # You'll need to add these in your CircleCI Project's environment variables
+          command: docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+      - run:
+          name: docker buildx build and push
+          # Because we created a containers with binfmt, buildx will pick up on those and use them
+          # to build the different images for the varying architectures.  In this case for AMD64 and ARM64
+          command: |
+            docker buildx build --platform linux/amd64,linux/arm64 \
+              -f ./ReleaseDockerfile \
+              -t ${DOCKER_REPO}:${DOCKER_REPO_TAG} \
+              --push \
+              .
+
+workflows:
+  version: 2
+  build_push_docker_images:
+    jobs:
+      - build-go-app:
+          filter:
+            branches:
+              only:
+                - circle-ci
+      - build-docker-image:
+          requires:
+            - build-go-app
+          filter:
+            branches:
+              only:
+                - circle-ci
