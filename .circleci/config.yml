@@ -71,14 +71,14 @@ workflows:
   build_push_docker_images:
     jobs:
       - build-go-app:
-          filter:
+          filters:
             branches:
               only:
                 - circle-ci
       - build-docker-image:
           requires:
             - build-go-app
-          filter:
+          filters:
             branches:
               only:
                 - circle-ci
